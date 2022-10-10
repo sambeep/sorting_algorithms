@@ -1,60 +1,79 @@
 #include "sort.h"
 
 /**
- * heap_sort - sorts an array following the Heap sort algorithm
- * @array: array of ints to sort
- * @size: size of the array to sort
+ * sift_down - fixes a heap
+ * @array: the heap to fix
+ * @root: the root of the heap
+ * @end: the last index of the heap
+ * @size: size of the array
+ *
+ * Return: void
  */
-void heap_sort(int *array, size_t size)
+void sift_down(int *array, size_t root, size_t end, size_t size)
 {
-	int i;
-	int tmp;
+	size_t left_child, right_child, swap;
+	int temp;
 
-	if (size < 2)
-		return;
-
-	for (i = size / 2 - 1; i >= 0; i--)
-		heapify(array, size, (size_t)i, size);
-
-	for (i = size - 1; i >= 0; i--)
+	while ((left_child = (2 * root) + 1) <= end)
 	{
-		tmp = array[i];
-		array[i] = array[0];
-		array[0] = tmp;
-		if (i != 0)
-			print_array(array, size);
-		heapify(array, (size_t)i, 0, size);
+		swap = root;
+		right_child = left_child + 1;
+		if (array[swap] < array[left_child])
+			swap = left_child;
+		if (right_child <= end && array[swap] < array[right_child])
+			swap = right_child;
+		if (swap == root)
+			return;
+		temp = array[root];
+		array[root] = array[swap];
+		array[swap] = temp;
+		print_array(array, size);
+		root = swap;
 	}
 }
 
 /**
- * heapify - turns an array in a heap tree
- * @array: array to turn into heap
- * @s: size of the subtree
- * @root: index of the subtree in the heap
- * @size: size of the whole array
+ * make_heap - makes a heap from an unsorted array
+ * @array: array to turn into a heap
+ * @size: size of the array
+ *
+ * Return: void
  */
-void heapify(int *array, size_t s, size_t root, size_t size)
+void make_heap(int *array, size_t size)
 {
-	size_t max, left, right;
-	int tmp;
+	size_t parent;
 
-	max = root;
-	left = (root * 2) + 1;
-	right = (root * 2) + 2;
-
-	if (left < s && array[left] > array[max])
-		max = left;
-
-	if (right < s && array[right] > array[max])
-		max = right;
-
-	if (max != root)
+	for (parent = ((size - 1) - 1) / 2; 1; parent--)
 	{
-		tmp = array[root];
-		array[root] = array[max];
-		array[max] = tmp;
+		sift_down(array, parent, size - 1, size);
+		if (parent == 0)
+			break;
+	}
+}
+
+/**
+ * heap_sort - sorts an array of ints in ascending order w/ the Heap sort algo
+ * @array: array to sort
+ * @size: size of the array
+ *
+ * Return: void
+ */
+void heap_sort(int *array, size_t size)
+{
+	size_t end;
+	int temp;
+
+	if (array == NULL || size < 2)
+		return;
+	make_heap(array, size);
+	end = size - 1;
+	while (end > 0)
+	{
+		temp = array[end];
+		array[end] = array[0];
+		array[0] = temp;
 		print_array(array, size);
-		heapify(array, s, max, size);
+		end--;
+		sift_down(array, 0, end, size);
 	}
 }
